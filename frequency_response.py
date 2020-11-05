@@ -6,15 +6,21 @@
 @title: Frequency response automation
 
 Convertion from LabVIEW code to python equivalent
+Oscilloscope model: Agilent MSO 6034
+Function generator model: HP 33120a
+
+VISA communications not tested with python yet
 """
+
+
 import pyvisa
 from time import sleep
 import numpy as np
 
-oscilloscope_address = 'GPIB::1::ISNTR'
-func_gen_address = 'GPIB::10::ISNTR'
+oscilloscope_address = 'GPIB0::1::INSTR'
+func_gen_address = 'GPIB0::10::INSTR'
 
-
+# Data acquirement settings
 initial_freq = 500 # Hz
 final_freq = 5000 # Hz
 freq_step = 25 # Hz
@@ -36,41 +42,42 @@ def in_signal_func_gen(instrument, frequency, amplitude):
 def osc_calibration(channel):
     oscilloscope.write('*CLS')
     oscilloscope.chunk_size = 512
-    sleep(10)
-    
+    sleep(0.1)
+    oscilloscope.write(':WAVEFORM:SOURCE {:d}'\
+                       .format(channel))
+    sleep(0.1)    
     oscilloscope.write(':CHANnel{:d}:RANGe {:d}'\
                        .format(channel,saturation_voltage))
-    sleep(10)
+    sleep(0.1)
     
     time_scale = (1 / frequency) * 5 # 5 times the period
     oscilloscope.write(':TIMebase:RANGe {:.4f}'\
                        .format(time_scale))
-    sleep(10)
+    sleep(0.1)
     
     oscilloscope.write('CHANnel{:d}:OFFSet {:d}'\
                        .format(channel, offset))
-    sleep(10)
+    sleep(0.1)
     
     oscilloscope.write(':MEASure:SOURce\sCHANnel{:d}'\
                        .format(channel))
-    sleep(700) #critical delay to wait the measurement
+    sleep(0.7) #critical delay to wait the measurement
     
     # begin fine adjustment
-    oscilloscope.write(':MEASure:VMAX?')
-    sleep(50)
-    osc_max = oscilloscope.read()
-    oscilloscope.write(':MEASure:VMIN?')
-    sleep(50)
-    osc_min = oscilloscope.read()
+    osc_max = oscilloscope.query(':MEASure:VMAX? CHANnel{:d}'\
+                                 .format(channel))
+    sleep(0.5)
+    osc_min = oscilloscope.query(':MEASure:VMIN? CHANnel{:d}'\
+                                 .format(channel))
     
-    volt_scale = (osc_max - osc_min) / 4 * 8 #fills 1/2 of the screen
+    volt_scale = (float(osc_max) - float(osc_min))/6*8 #fills 6/8 of the screen
     oscilloscope.write(':CHANnel{:d}:RANGe {:.4f}'\
                        .format(channel, volt_scale))
-    sleep(10)
+    sleep(2)
     
-    osc_offset = (osc_max + osc_min) / 2
+    osc_offset = (float(osc_max) + float(osc_min)) / 2
     oscilloscope.write(':CHANnel{:d}:OFFSet {:.4f}'\
-                       .format(channel, osc_offset))
+                        .format(channel, osc_offset))
     oscilloscope.write('*CLS')
     
     
@@ -123,15 +130,16 @@ def calculate_thd(freq, dft):
     
 
 ## Basic documentation for pyvisa
-# rm.list_resources()
-#define instrument address
-# inst = rm.open_resource('GPIB0::12::INSTR') 
-# inst.query("*IDN?") # send msg and read response instantly
-# inst.write('message') # send msg
-# inst.read()   #read msg
-# inst.wait_for_srq()
+    # rm.list_resources()
+    #define instrument address
+    # inst = rm.open_resource('GPIB0::12::INSTR') 
+    # inst.query("*IDN?") # send msg and read response instantly
+    # inst.write('message') # send msg
+    # inst.read()   #read msg
+    # inst.wait_for_srq()
 
 rm = pyvisa.ResourceManager()   #initialize VISA communication
+
 
 # oscilloscope initialization and initial configuration
 oscilloscope = rm.open_resource(oscilloscope_address)
@@ -142,7 +150,11 @@ oscilloscope.write(':ACQuire:COUNt 8') #from 2 to 65536
 oscilloscope.write(':TRIGGER:EDGE:SOURCE CHANnel2')
 oscilloscope.write('CHANnel1:PROBe 1')  #interferometer received signal
 oscilloscope.write('CHANnel2:PROBe 1')  #modulation inserted signal
-oscilloscope.write_termination = '\n'
+# oscilloscope.write_termination = '\n''
+oscilloscope.write('CHANnel1:DISPlay ON')
+oscilloscope.write('CHANnel2:DISPlay ON')
+oscilloscope.write(':TRIGger:EDGE:SOURce CHANnel2')
+oscilloscope.write(':TRIGger:EDGE:LEVel {:d}'.format(offset))
 oscilloscope.timeout = 20
 
 # function generator initialization and configuration
