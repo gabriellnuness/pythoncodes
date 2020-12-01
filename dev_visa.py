@@ -6,6 +6,7 @@ test visa functions
 import pyvisa
 from time import sleep
 import numpy as np
+import pandas as pd
 
 oscilloscope_address = 'GPIB0::1::INSTR'
 func_gen_address = 'GPIB0::10::INSTR'
@@ -90,6 +91,8 @@ def osc_measurement(channel):
         osc_response = oscilloscope.read() # probably wrong
     return(osc_response)    
 
+def save_file():
+    
 
     
 rm = pyvisa.ResourceManager()   #initialize VISA communication
