@@ -12,8 +12,11 @@ Because python is way more versatile, allowing me to control the instruments via
 
 ## Content
 matplotlib
+
 pandas
+
 numpy
+
 pyvisa
 
 ### NOTE: The scripts are in ongoing development.
