@@ -1,4 +1,4 @@
-# Python scripts to scientific work
+# Python scripts for scientific work
 ## This repository contains python scripts I am using during my master's degree.
 
 Mainly it is focused on few calculations and automations to plot a beautiful graph to my LaTeX dissertation (which I'm also doing the version control in another private git repository)
