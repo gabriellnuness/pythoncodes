@@ -17,7 +17,7 @@ params = {'axes.labelsize': 12,
           'ytick.labelsize':10,
           'axes.titlepad': 1,
           'axes.labelpad': 1,
-          "text.usetex": True,
+          #"text.usetex": True,
           "font.family": "serif",
           "font.sans-serif": ["Computer Modern Roman"]
           }
@@ -54,8 +54,8 @@ plt.plot(f[idx],fnoise[idx],'o',color=[.0,.0,.0], markersize=3)
 plt.plot(f, (fnoise+wnoise), color=[.2,.2,.2])
 plt.xscale('log')
 plt.yscale('log')
-plt.xlabel('Frequency [Hz]')
-plt.ylabel('Power Spectrum Density [dBm]')
+plt.xlabel('Frequency [Hz]', fontsize=12)
+plt.ylabel('Power Spectrum Density [dBm]', fontsize=12)
 
 ax = fig.add_subplot(111)
 ax.set_yticklabels([])
