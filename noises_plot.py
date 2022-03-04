@@ -3,6 +3,11 @@
 Noise plots
 Thermal + Shot + rin
 
+To use latex fonts in the resulting figure it is necessary 
+to have a functional LaTeX installation and have the python 
+path pointed at it.
+Otherwise, comment out the command: '"text.usetex": True'
+
 Created on Fri Dec  4 19:58:36 2020
 
 @author: Stinky
@@ -36,7 +41,7 @@ params = {'axes.labelsize': 12,
           'ytick.labelsize':10,
           'axes.titlepad': 1,
           'axes.labelpad': 1,
-          "text.usetex": True,
+          #"text.usetex": True,
           "font.family": "serif",
           "font.sans-serif": ["Computer Modern Roman"]
           }
